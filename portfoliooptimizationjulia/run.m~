@@ -1,0 +1,5 @@
+A = readtable("data/GOOG.csv");
+
+dates = table2array(A(:,1));
+X = table2array(A(:,6));
+

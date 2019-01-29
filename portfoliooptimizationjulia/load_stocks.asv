@@ -1,0 +1,17 @@
+function [X, dates, names] = load_stocks(dirname, startdate, enddate)
+
+files = dir(dirname) ;
+datafiles = [];
+for i = 1:length(files)
+    file = files(i);
+    if endsWith(file.name, ".csv")
+        append(fullfile(file.folder, file.name), 
+    end
+end
+n = length(datafiles); % n stocks
+ 
+names = cell(n, 1);
+for i = 1:n
+    filename = datafiles(i);
+    stock, dates = load_stock(filename)
+end
