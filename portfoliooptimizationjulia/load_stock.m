@@ -11,3 +11,5 @@ p = p(index_array);
 
 % Compute rate of return
 r = (p - p(1))/p(1);
+
+end

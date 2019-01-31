@@ -8,9 +8,10 @@ datafiles = [];
 for i = 1:length(files)
     file = files(i);
     if endsWith(file.name, ".csv")
-        datafiles = [datafiles; file]
+        datafiles = [datafiles; file];
     end
 end
+
 n = length(datafiles); % n stocks
 X = []; % Annoying that we do not know the number of days in advance...
 
@@ -22,3 +23,4 @@ for i = 1:n
     X = [X, roi]; % Concanate new vector to matrix
 end
 
+end

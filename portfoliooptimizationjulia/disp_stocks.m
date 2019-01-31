@@ -8,7 +8,7 @@ rows = n/cols;
 
 h = figure;
 for ii=1:n
-    subplot(rows, cols, ii);
+%     subplot(rows, cols, ii);
     
     plot(datenum(dates), X(:,ii)); hold on
     plot(datenum(dates), zeros(size(dates)), 'k');
@@ -18,5 +18,5 @@ for ii=1:n
     ylabel('Rate of return')
     ylim([-1.0 1.0])
 end
-
+legend(names)
 drawnow();
