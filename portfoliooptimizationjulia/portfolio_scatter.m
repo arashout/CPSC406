@@ -10,13 +10,16 @@ n = length(r);
 
 for ii=1:num
         % TODO: Double with smaller numbers
-        randomStocks = randi([1 19],5,1);
+        %randomStocks = randi([1 n],5,1);
+        randomStocks = randperm(19,5);
         rn = rand(numStocks, 1);
         randomAllocation = rn/sum(rn);
-        expectedReturn = r(randomStocks')*randomAllocation;
-        randmu(ii) = expectedReturn;
-        
-        expectedRisk = 0;
+        weight = zeros(size(r));
+        weight(randomStocks') = randomAllocation; % the selected stocks have some allocation, unselected stocks will be 0
+        %each element of randomstocks must be different, otherwise rewrite
+        expectedReturn = r* weight';
+        expectedRisk = sqrt(weight * Sig * weight'); % see the pdf i sent you
+       %{
         for i=1:numStocks
             si = randomStocks(i); % ith Stock Index
             expectedRisk = expectedRisk + r(si)^2 * Sig(si, si);
@@ -27,11 +30,12 @@ for ii=1:num
                 end
             end
         end
-        
+        %}
+        weight_m(:,ii) = weight';
         randSig(ii) = expectedRisk;
+        randmu(ii) = expectedReturn;
 end
 scatter(randSig, randmu, 5)
 xlabel('Std. Dev.')
 ylabel('Expected Rate of Return')
-
 end
