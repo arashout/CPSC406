@@ -2,20 +2,37 @@ function x = market_portfolio(f, r, Sig)
 
 % Define function func such that 
 %   func(sig) = 0   when   risk_free_rate(sig, r, Sig) = f.
-func = @(sig) ...
+func = @(sig) risk_free_rate(sig,r,Sig) - f;
 
 % Compute the minimum value of sig
-sig1 = ...
+cvx_begin quiet
+    variable x(size(r))
+    minimize (x' * Sig * x)
+    subject to
+        sum(x) == 1;
+        x >= 0;    
+cvx_end  
+
+sig1 = sqrt( x' * Sig * x);
 
 % Compute the maximum value of sig
-sig2 = ...
+
+
+sig2 = sqrt(max(diag(Sig)));;
 
 % Use BinarySearch to solve func(sig) = 0
 sig = BinarySearch(func, sig1, sig2);
 
 % The market portfolio is the portfolio on the efficient frontier with risk
 % equal to the sig satisfying   risk_free_rate(sig, r, Sig) = f.
-...
+cvx_begin quiet
+    variable x(size(r))
+    maximize (r'* x)
+    subject to
+        sum(x) == 1;
+        x >= 0; 
+        norm(sqrtm(Sig)*x) <= sig;
+cvx_end  ;
 
 end
 
@@ -39,9 +56,11 @@ cvx_begin quiet
         x >= 0
 cvx_end
 
+rmax = r'*x;
 % The risk-free rate is the y-intercept of the line tangent to the
 % efficient frontier at the point (r'*x, sqrt(x'*Sig*x)).
-rate = ...
+rate = lambda*(-sig) + rmax;
+
 
 end
 
