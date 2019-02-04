@@ -13,12 +13,9 @@ cvx_begin quiet
         x >= 0;    
 cvx_end  
 
+% Lower and upper bounds for sig
 sig1 = sqrt( x' * Sig * x);
-
-% Compute the maximum value of sig
-
-
-sig2 = sqrt(max(diag(Sig)));;
+sig2 = sqrt(max(diag(Sig)));
 
 % Use BinarySearch to solve func(sig) = 0
 sig = BinarySearch(func, sig1, sig2);
@@ -33,14 +30,11 @@ cvx_begin quiet
         x >= 0; 
         norm(sqrtm(Sig)*x) <= sig;
 cvx_end  ;
-
 end
 
 
 function rate = risk_free_rate(sig, r, Sig)
-
 n = length(r);
-
 [sqrtSig, resnorm] = sqrtm(Sig);
 
 % Dual multiplier lambda gives slope of efficient frontier at the point
@@ -60,8 +54,6 @@ rmax = r'*x;
 % The risk-free rate is the y-intercept of the line tangent to the
 % efficient frontier at the point (r'*x, sqrt(x'*Sig*x)).
 rate = lambda*(-sig) + rmax;
-
-
 end
 
 function x = BinarySearch(func, x1, x2)
