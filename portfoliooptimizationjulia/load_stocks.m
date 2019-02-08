@@ -3,7 +3,7 @@ function [X, dates, names] = load_stocks(dirname, startdate, enddate)
 startdate = datetime(startdate,'InputFormat','yyyy-MM-dd');
 enddate = datetime(enddate,'InputFormat','yyyy-MM-dd');
 
-files = dir(dirname) ;
+files = dir(fullfile(pwd, dirname)) ;
 datafiles = [];
 for i = 1:length(files)
     file = files(i);
