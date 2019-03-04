@@ -1,0 +1,262 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>HW4_Q1</title><meta name="generator" content="MATLAB 9.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-03-03"><meta name="DC.source" content="HW4_Q1.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Q1c</a></li><li><a href="#3">Q1d</a></li><li><a href="#4">Q1e</a></li></ul></div><pre class="codeinput">clear <span class="string">all</span>
+</pre><h2 id="2">Q1c</h2><pre class="codeinput">load(<span class="string">'hw4_1b.mat'</span>);
+lambdas = [1, 0.01, 10];
+k = length(lambdas);
+
+figure(1)
+hold <span class="string">on</span>
+leg = cell(k+1, 1);
+plot(x0);
+title(<span class="string">'Q1b'</span>)
+leg{1} = <span class="string">'x0'</span>;
+<span class="keyword">for</span> i = 1:k
+    y = lambdas(i);
+    cvx_begin <span class="string">quiet</span>
+        variable <span class="string">x(n)</span>
+        minimize( 0.5*(A*x-b)'*(A*x-b)  + y*norm(x, 1) )
+    cvx_end
+    plot(x, <span class="string">'--'</span>)
+    leg{i+1} = strcat(<span class="string">'\lambda='</span>, num2str(y));
+<span class="keyword">end</span>
+hold <span class="string">off</span>
+legend(leg)
+</pre><img vspace="5" hspace="5" src="HW4_Q1_01.png" alt=""> <h2 id="3">Q1d</h2><pre class="codeinput">lambdas = logspace(-3, 3, 100);
+k = length(lambdas);
+f1_res = zeros(k, 1);
+f2_res = zeros(k, 1);
+signal_res = zeros(k, n);
+
+figure(2)
+<span class="keyword">for</span> i = 1:k
+    y = lambdas(i);
+    cvx_begin <span class="string">quiet</span>
+        variable <span class="string">x(n)</span>
+        minimize( 0.5*(A*x-b)'*(A*x-b) + y*norm(x, 1) )
+    cvx_end
+    f1_res(i)= 0.5*norm(A*x - b);
+    f2_res(i) = norm(x, 1);
+    signal_res(i, :) = x;
+<span class="keyword">end</span>
+plot(f1_res, f2_res);
+title(<span class="string">'Q1d: Pareto Frontier'</span>)
+xlabel(<span class="string">'f1'</span>)
+ylabel(<span class="string">'f2'</span>)
+</pre><img vspace="5" hspace="5" src="HW4_Q1_02.png" alt=""> <img vspace="5" hspace="5" src="HW4_Q1_03.png" alt=""> <h2 id="4">Q1e</h2><pre class="codeinput">load(<span class="string">'hw4_1e.mat'</span>);
+
+lambdas = [1, 0.01, 10];
+k = length(lambdas);
+
+figure(3)
+hold <span class="string">on</span>
+leg = cell(k+1, 1);
+plot(x0);
+hold <span class="string">on</span>
+title(<span class="string">'Q1e'</span>)
+leg{1} = <span class="string">'x0'</span>;
+
+D = diag(ones(n, 1)) + diag(-ones(n-1, 1), 1);
+D = D(1:end-1, :);
+<span class="keyword">for</span> i = 1:k
+    y = lambdas(i);
+    cvx_begin <span class="string">quiet</span>
+        variable <span class="string">x(n)</span>
+        minimize( 0.5*(A*x-b)'*(A*x-b)  + y*norm(D*x, 1) )
+    cvx_end
+    plot(x, <span class="string">'--'</span>)
+    leg{i+1} = strcat(<span class="string">'\lambda='</span>, num2str(y));
+<span class="keyword">end</span>
+hold <span class="string">off</span>
+legend(leg)
+
+<span class="comment">%%Q1f</span>
+lambdas = logspace(-3, 3, 100);
+k = length(lambdas);
+f1_res = zeros(k, 1);
+f2_res = zeros(k, 1);
+signal_res = zeros(k, n);
+
+figure(4)
+<span class="keyword">for</span> i = 1:k
+    y = lambdas(i);
+    cvx_begin <span class="string">quiet</span>
+        variable <span class="string">x(n)</span>
+        minimize( 0.5*(A*x-b)'*(A*x-b)  + y*norm(D*x, 1) )
+    cvx_end
+    f1_res(i)= 0.5*(A*x-b)'*(A*x-b);
+    f2_res(i) = norm(x, 1);
+    signal_res(i, :) = x;
+<span class="keyword">end</span>
+plot(f1_res, f2_res);
+title(<span class="string">'Q1f: Pareto Frontier'</span>)
+xlabel(<span class="string">'f1'</span>)
+ylabel(<span class="string">'f2'</span>)
+</pre><img vspace="5" hspace="5" src="HW4_Q1_04.png" alt=""> <img vspace="5" hspace="5" src="HW4_Q1_05.png" alt=""> <img vspace="5" hspace="5" src="HW4_Q1_06.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+clear all
+
+%% Q1c
+load('hw4_1b.mat');
+lambdas = [1, 0.01, 10];
+k = length(lambdas);
+
+figure(1)
+hold on
+leg = cell(k+1, 1);
+plot(x0);
+title('Q1b')
+leg{1} = 'x0';
+for i = 1:k
+    y = lambdas(i);
+    cvx_begin quiet
+        variable x(n)
+        minimize( 0.5*(A*x-b)'*(A*x-b)  + y*norm(x, 1) )
+    cvx_end
+    plot(x, 'REPLACE_WITH_DASH_DASH')
+    leg{i+1} = strcat('\lambda=', num2str(y));
+end
+hold off
+legend(leg)
+
+%% Q1d
+lambdas = logspace(-3, 3, 100);
+k = length(lambdas);
+f1_res = zeros(k, 1);
+f2_res = zeros(k, 1);
+signal_res = zeros(k, n);
+
+figure(2)
+for i = 1:k
+    y = lambdas(i);
+    cvx_begin quiet
+        variable x(n)
+        minimize( 0.5*(A*x-b)'*(A*x-b) + y*norm(x, 1) )
+    cvx_end
+    f1_res(i)= 0.5*norm(A*x - b);
+    f2_res(i) = norm(x, 1);
+    signal_res(i, :) = x;
+end
+plot(f1_res, f2_res);
+title('Q1d: Pareto Frontier')
+xlabel('f1')
+ylabel('f2')
+
+%% Q1e
+load('hw4_1e.mat');
+
+lambdas = [1, 0.01, 10];
+k = length(lambdas);
+
+figure(3)
+hold on
+leg = cell(k+1, 1);
+plot(x0);
+hold on
+title('Q1e')
+leg{1} = 'x0';
+
+D = diag(ones(n, 1)) + diag(-ones(n-1, 1), 1);
+D = D(1:end-1, :);
+for i = 1:k
+    y = lambdas(i);
+    cvx_begin quiet
+        variable x(n)
+        minimize( 0.5*(A*x-b)'*(A*x-b)  + y*norm(D*x, 1) )
+    cvx_end
+    plot(x, 'REPLACE_WITH_DASH_DASH')
+    leg{i+1} = strcat('\lambda=', num2str(y));
+end
+hold off
+legend(leg)
+
+%%Q1f
+lambdas = logspace(-3, 3, 100);
+k = length(lambdas);
+f1_res = zeros(k, 1);
+f2_res = zeros(k, 1);
+signal_res = zeros(k, n);
+
+figure(4)
+for i = 1:k
+    y = lambdas(i);
+    cvx_begin quiet
+        variable x(n)
+        minimize( 0.5*(A*x-b)'*(A*x-b)  + y*norm(D*x, 1) )
+    cvx_end
+    f1_res(i)= 0.5*(A*x-b)'*(A*x-b);
+    f2_res(i) = norm(x, 1);
+    signal_res(i, :) = x;
+end
+plot(f1_res, f2_res);
+title('Q1f: Pareto Frontier')
+xlabel('f1')
+ylabel('f2')
+##### SOURCE END #####
+--></body></html>
