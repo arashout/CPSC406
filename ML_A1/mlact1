@@ -1,0 +1,46 @@
+clear all
+%%
+load("mnist.mat")
+
+% figure(1)
+% clf
+% i = 1;
+% imshow(reshape(trainX(i,:),28,28)')
+% title(trainY(i))
+
+%% Pre-processing
+idx = trainY == 4 | trainY == 9;
+A = double(trainX(idx,:));
+b = double(trainY(idx));
+m = size(A, 1);
+b(b==4)=1;
+b(b==9)=-1;   
+
+idx_test = testY == 4 | testY == 9;
+Atest = double(testX(idx_test,:));
+btest = double(testY(idx_test));
+mtest = size(Atest, 1);
+% Turn labels into +1 -1
+btest(btest==4)=1;
+btest(btest==9)=-1;   
+
+%% Normalize
+Amean = mean(A,1);
+A = A - ones(m,1)*Amean;
+Astd = std(A,1);
+A = A ./ max(ones(m,1)*Astd,1);
+
+Atest = Atest - ones(mtest,1)*Amean;
+Atest = Atest ./ max(ones(mtest,1)*Astd, 1);
+
+x = A \ b';
+
+%% Evaluate Loss
+norm(A*x - b',2)
+
+C = @(a) (a*x > 0)*2 - 1;
+I = @(x,y) x ~= y;
+
+train_misclass_rate = sum(I(C(A), b))/m;
+test_misclass_rate = sum(I(C(Atest), btest));
+

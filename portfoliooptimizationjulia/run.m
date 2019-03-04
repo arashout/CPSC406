@@ -48,12 +48,12 @@ Sig_ = [Sig_; zeros(1,20)]; % build risk free Sig
 plot(sigs_,rates_,'go-');
 title("Efficient frontier with risk-free stock")
 market_x = market_portfolio(f,r',Sig);
-
-
+annotation(h,'line',[0.128070175438597 0.910526315789474],...
+    [0.15852380952381 0.928571428571429],'LineStyle','--');
 %%
 % *Q3 - Meaning of linear part*
 %
 % The linear half-line (Before the tangent point) represents the new
-% extended region of the fficient frontier thanks to the addition of the
-% risk free stock. This stock has no variance by definetion thus including
+% extended region of the efficient frontier thanks to the addition of the
+% risk free stock. This stock has no variance by definition thus including
 % in the portfolio results in a linear gain in rate of return
