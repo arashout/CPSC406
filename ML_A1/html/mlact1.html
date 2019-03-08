@@ -1,0 +1,309 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>mlact1</title><meta name="generator" content="MATLAB 9.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-03-07"><meta name="DC.source" content="mlact1.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Part 1 - Retrieval</a></li><li><a href="#3">Part 2 - Pre-processing</a></li><li><a href="#4">Part 3 - Linear Regression</a></li><li><a href="#5">Part 4 - Logistic Regression</a></li></ul></div><pre class="codeinput">clear <span class="string">all</span>
+close <span class="string">all</span>
+</pre><h2 id="2">Part 1 - Retrieval</h2><pre class="codeinput">load(<span class="string">"mnist.mat"</span>)
+<span class="comment">%</span>
+<span class="comment">% figure(1)</span>
+<span class="comment">% clf</span>
+<span class="comment">% i = 1;</span>
+<span class="comment">% imshow(reshape(trainX(i,:),28,28)')</span>
+<span class="comment">% title(trainY(i))</span>
+</pre><h2 id="3">Part 2 - Pre-processing</h2><pre class="codeinput">idx = trainY == 4 | trainY == 9;
+Atr = double(trainX(idx,:));
+btr = double(trainY(idx))';
+ntr = size(Atr, 2);
+mtr = size(Atr, 1);
+btr(btr==4)=1;
+btr(btr==9)=-1;
+
+idx_test = testY == 4 | testY == 9;
+Atest = double(testX(idx_test,:));
+btest = double(testY(idx_test))';
+mtest = size(Atest, 1);
+<span class="comment">% Turn labels into +1 -1</span>
+btest(btest==4)=1;
+btest(btest==9)=-1;
+
+<span class="comment">% Normalization</span>
+[Atr, Amean, Astd] = normalize(Atr);
+<span class="comment">% TODO: Why is it important to use the pre-computed mean and standard</span>
+<span class="comment">% deviation</span>
+Atest = Atest - ones(mtest,1)*Amean;
+Atest = Atest ./ max(ones(mtest,1)*Astd,1);
+<span class="comment">% Validation Functions</span>
+C = @(z) (z &gt; 0)*2 - 1;
+I = @(x,y) x ~= y;
+misclass_rate = @(A,y,x) sum(I(C(A*x), y))/length(y);
+</pre><h2 id="4">Part 3 - Linear Regression</h2><pre class="codeinput">x_lr = Atr \ btr;
+
+train_loss = norm(Atr*x_lr - btr, 2)
+test_loss = norm(Atest*x_lr - btest, 2)
+
+train_misclass_rate_lr = misclass_rate(Atr, btr, x_lr)
+test_misclass_rate_lr = misclass_rate(Atest, btest, x_lr)
+</pre><pre class="codeoutput">Warning: Rank deficient, rank = 607, tol =  2.842930e-10. 
+
+train_loss =
+
+   46.2200
+
+
+test_loss =
+
+   26.3921
+
+
+train_misclass_rate_lr =
+
+    0.0308
+
+
+test_misclass_rate_lr =
+
+    0.0362
+
+</pre><h2 id="5">Part 4 - Logistic Regression</h2><p>Pre-process</p><pre class="codeinput">btr = (btr+1)/2;
+btest = (btest+1)/2;
+
+<span class="comment">% Initialize functions</span>
+sig = @(x) 1./(1+exp(-x));
+f = @(x) f_func(Atr, btr, x, sig);
+g = @(x) Atr'*(sig(Atr*x) -btr)/mtr;
+l = @(x) norm(Atr*x - btr, 2);
+x0 = zeros(ntr, 1);
+epsilon = 1e-1;
+max_iter = 1e3;
+
+<span class="comment">% Gradient Descent</span>
+[x_gd, trace_gd, status] = gd(g, l, x0, 1/mtr ,max_iter, epsilon);
+<span class="keyword">if</span> status &lt; 0
+    disp(<span class="string">"GD diverged"</span>)
+<span class="keyword">end</span>
+train_misclass_rate_gd = misclass_rate(Atr, btr,  x_gd)
+test_misclass_rate_gd = misclass_rate(Atest, btest, x_gd )
+figure(1)
+plot(trace_gd)
+hold <span class="string">on</span>
+<span class="comment">% Backtracking Line Search</span>
+[x_gd_bt, trace_bt, status] = gd_bt(f, g, l, x0, 1, 0.5, 0.5, 1000, 1e-1);
+<span class="keyword">if</span> status &lt; 0
+    disp(<span class="string">"GD diverged"</span>)
+<span class="keyword">end</span>
+train_misclass_rate_gd_btls = misclass_rate(Atr, btr, x_gd_bt)
+test_misclass_rate_gd_btls = misclass_rate(Atest, btest, x_gd_bt)
+plot(trace_bt, <span class="string">'g.'</span>)
+hold <span class="string">off</span>
+
+figure(2)
+rates = [train_misclass_rate_lr, test_misclass_rate_lr, train_misclass_rate_gd,test_misclass_rate_gd, train_misclass_rate_gd_btls, test_misclass_rate_gd_btls];
+bar(rates)
+title(<span class="string">'Misclassification rates'</span>)
+set(gca,<span class="string">'xticklabel'</span>,{<span class="string">'Train LR'</span>, <span class="string">'Test LR'</span>, <span class="string">'Train GD'</span>,<span class="string">'Test GD'</span>,<span class="string">'Train GD-BS'</span>, <span class="string">'Test GD-BS'</span>});
+
+<span class="keyword">function</span> [X, avg, Xstd] = normalize(X)
+    [m, ~] = size(X);
+    avg = mean(X,1);
+    X = X - ones(m,1)*avg;
+    Xstd = std(X,1);
+    X = X ./ max(ones(m,1)*Xstd,1);
+<span class="keyword">end</span>
+<span class="keyword">function</span> cost = f_func(A, b, x, act_func)
+    [m, ~] = size(A);
+    z = act_func(A*x);
+    cost = sum(-log(z(b == 1))) + sum(-log(1 - z(b == 0)))/m;
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">GD diverged
+
+train_misclass_rate_gd =
+
+    0.5770
+
+
+test_misclass_rate_gd =
+
+    0.5746
+
+
+train_misclass_rate_gd_btls =
+
+    0.5277
+
+
+test_misclass_rate_gd_btls =
+
+    0.5249
+
+</pre><img vspace="5" hspace="5" src="mlact1_01.png" alt=""> <img vspace="5" hspace="5" src="mlact1_02.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+clear all
+close all
+%% Part 1 - Retrieval
+load("mnist.mat")
+% 
+% figure(1)
+% clf
+% i = 1;
+% imshow(reshape(trainX(i,:),28,28)')
+% title(trainY(i))
+
+%% Part 2 - Pre-processing
+idx = trainY == 4 | trainY == 9;
+Atr = double(trainX(idx,:));
+btr = double(trainY(idx))';
+ntr = size(Atr, 2);
+mtr = size(Atr, 1);
+btr(btr==4)=1;
+btr(btr==9)=-1;   
+
+idx_test = testY == 4 | testY == 9;
+Atest = double(testX(idx_test,:));
+btest = double(testY(idx_test))';
+mtest = size(Atest, 1);
+% Turn labels into +1 -1
+btest(btest==4)=1;
+btest(btest==9)=-1;   
+
+% Normalization
+[Atr, Amean, Astd] = normalize(Atr);
+% TODO: Why is it important to use the pre-computed mean and standard
+% deviation
+Atest = Atest - ones(mtest,1)*Amean;
+Atest = Atest ./ max(ones(mtest,1)*Astd,1);
+% Validation Functions
+C = @(z) (z > 0)*2 - 1;
+I = @(x,y) x ~= y;
+misclass_rate = @(A,y,x) sum(I(C(A*x), y))/length(y);
+
+%% Part 3 - Linear Regression
+x_lr = Atr \ btr;
+
+train_loss = norm(Atr*x_lr - btr, 2)
+test_loss = norm(Atest*x_lr - btest, 2)
+
+train_misclass_rate_lr = misclass_rate(Atr, btr, x_lr)
+test_misclass_rate_lr = misclass_rate(Atest, btest, x_lr)
+
+
+%% Part 4 - Logistic Regression
+% Pre-process
+btr = (btr+1)/2;
+btest = (btest+1)/2;
+
+% Initialize functions
+sig = @(x) 1./(1+exp(-x));
+f = @(x) f_func(Atr, btr, x, sig);
+g = @(x) Atr'*(sig(Atr*x) -btr)/mtr;
+l = @(x) norm(Atr*x - btr, 2);
+x0 = zeros(ntr, 1);
+epsilon = 1e-1;
+max_iter = 1e3;
+
+% Gradient Descent
+[x_gd, trace_gd, status] = gd(g, l, x0, 1/mtr ,max_iter, epsilon); 
+if status < 0 
+    disp("GD diverged")
+end
+train_misclass_rate_gd = misclass_rate(Atr, btr,  x_gd)
+test_misclass_rate_gd = misclass_rate(Atest, btest, x_gd )
+figure(1)
+plot(trace_gd)
+hold on
+% Backtracking Line Search 
+[x_gd_bt, trace_bt, status] = gd_bt(f, g, l, x0, 1, 0.5, 0.5, 1000, 1e-1); 
+if status < 0 
+    disp("GD diverged")
+end
+train_misclass_rate_gd_btls = misclass_rate(Atr, btr, x_gd_bt)
+test_misclass_rate_gd_btls = misclass_rate(Atest, btest, x_gd_bt)
+plot(trace_bt, 'g.')
+hold off
+
+figure(2)
+rates = [train_misclass_rate_lr, test_misclass_rate_lr, train_misclass_rate_gd,test_misclass_rate_gd, train_misclass_rate_gd_btls, test_misclass_rate_gd_btls];
+bar(rates)
+title('Misclassification rates')
+set(gca,'xticklabel',{'Train LR', 'Test LR', 'Train GD','Test GD','Train GD-BS', 'Test GD-BS'});
+
+function [X, avg, Xstd] = normalize(X)
+    [m, ~] = size(X);
+    avg = mean(X,1);
+    X = X - ones(m,1)*avg;
+    Xstd = std(X,1);
+    X = X ./ max(ones(m,1)*Xstd,1);
+end
+function cost = f_func(A, b, x, act_func)
+    [m, ~] = size(A);
+    z = act_func(A*x);
+    cost = sum(-log(z(b == 1))) + sum(-log(1 - z(b == 0)))/m;
+end
+
+
+##### SOURCE END #####
+--></body></html>

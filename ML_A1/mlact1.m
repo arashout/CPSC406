@@ -1,4 +1,5 @@
-% clear all
+clear all
+close all
 %% Part 1 - Retrieval
 load("mnist.mat")
 % 
@@ -10,12 +11,12 @@ load("mnist.mat")
 
 %% Part 2 - Pre-processing
 idx = trainY == 4 | trainY == 9;
-Atrain = double(trainX(idx,:));
-btrain = double(trainY(idx))';
-n = size(Atrain, 2);
-mtrain = size(Atrain, 1);
-btrain(btrain==4)=1;
-btrain(btrain==9)=-1;   
+Atr = double(trainX(idx,:));
+btr = double(trainY(idx))';
+ntr = size(Atr, 2);
+mtr = size(Atr, 1);
+btr(btr==4)=1;
+btr(btr==9)=-1;   
 
 idx_test = testY == 4 | testY == 9;
 Atest = double(testX(idx_test,:));
@@ -26,54 +27,77 @@ btest(btest==4)=1;
 btest(btest==9)=-1;   
 
 % Normalization
-Amean = mean(Atrain,1);
-Atrain = Atrain - ones(mtrain,1)*Amean;
-Astd = std(Atrain,1);
-Atrain = Atrain ./ max(ones(mtrain,1)*Astd,1);
-
+[Atr, Amean, Astd] = normalize(Atr);
+% TODO: Why is it important to use the pre-computed mean and standard
+% deviation
 Atest = Atest - ones(mtest,1)*Amean;
-Atest = Atest ./ max(ones(mtest,1)*Astd, 1);
-
-%% Part 3 - Linear Regression
-x = Atrain \ btrain;
-
-train_loss = norm(Atrain*x - btrain, 2)
-test_loss = norm(Atest*x - btest, 2)
-
+Atest = Atest ./ max(ones(mtest,1)*Astd,1);
+% Validation Functions
 C = @(z) (z > 0)*2 - 1;
 I = @(x,y) x ~= y;
-misclass_rate = @(A,b,x) sum(I(C(A*x), b))/length(b);
-train_misclass_rate = misclass_rate(Atrain, btrain, x)
-test_misclass_rate = misclass_rate(Atest, btest, x)
+misclass_rate = @(A,y,x) sum(I(C(A*x), y))/length(y);
 
-btrain = (btrain+1)/2;
-btest = (btest+1)/2;
+%% Part 3 - Linear Regression
+x_lr = Atr \ btr;
+
+train_loss = norm(Atr*x_lr - btr, 2)
+test_loss = norm(Atest*x_lr - btest, 2)
+
+train_misclass_rate_lr = misclass_rate(Atr, btr, x_lr)
+test_misclass_rate_lr = misclass_rate(Atest, btest, x_lr)
+
 
 %% Part 4 - Logistic Regression
-sig = @(x) 1./(1+exp(-x));
-f = @(A,b,x) @(x) sum(b .* log(sig(A*x)) + (1-b) .* log(1 - sig(A*x)) ); % TODO: Keep getting NAN
-g = @(A,b,x) @(x) A'*(sig(b - A*x));
-l = @(A,b, x) @(x) norm(A*x - b, 2);
-x0 = zeros(n, 1);
+% Pre-process
+btr = (btr+1)/2;
+btest = (btest+1)/2;
 
-% Gradient Descent - ODDLY enough the 1/mtrain step-size seems too big and
-% causes zig-zagging
-[x, trace] = gradient_descent(g(Atrain, btrain), l(Atrain, btrain), x0, 1000, 1/mtrain*0.1); 
-train_misclass_rate_gd = misclass_rate(Atrain, btrain, x)
-test_misclass_rate_gd = misclass_rate(Atest, btest, x)
+% Initialize functions
+sig = @(x) 1./(1+exp(-x));
+f = @(x) f_func(Atr, btr, x, sig);
+g = @(x) Atr'*(sig(Atr*x) -btr)/mtr;
+l = @(x) norm(Atr*x - btr, 2);
+x0 = zeros(ntr, 1);
+epsilon = 1e-1;
+max_iter = 1e3;
+
+% Gradient Descent
+[x_gd, trace_gd, status] = gd(g, l, x0, 1/mtr ,max_iter, epsilon); 
+if status < 0 
+    disp("GD diverged")
+end
+train_misclass_rate_gd = misclass_rate(Atr, btr,  x_gd)
+test_misclass_rate_gd = misclass_rate(Atest, btest, x_gd )
 figure(1)
-plot(trace, '.')
+plot(trace_gd)
 hold on
 % Backtracking Line Search 
-% TODO: this is garbage and doesn't work properly... How to fix?
-% [x, trace] = gradient_descent_btls(f(Atrain, btrain), g(Atrain, btrain), l(Atrain, btrain), x0, 1000, 1, 0.5, 0.5); 
-% train_misclass_rate_gd_btls = misclass_rate(Atrain, btrain, x)
-% test_misclass_rate_gd_btls = misclass_rate(Atest, btest, x)
-% plot(trace, 'g.')
+[x_gd_bt, trace_bt, status] = gd_bt(f, g, l, x0, 1, 0.5, 0.5, 1000, 1e-1); 
+if status < 0 
+    disp("GD diverged")
+end
+train_misclass_rate_gd_btls = misclass_rate(Atr, btr, x_gd_bt)
+test_misclass_rate_gd_btls = misclass_rate(Atest, btest, x_gd_bt)
+plot(trace_bt, 'g.')
 hold off
 
 figure(2)
-rates = [train_misclass_rate_gd, test_misclass_rate_gd, train_misclass_rate_gd, test_misclass_rate_gd];
+rates = [train_misclass_rate_lr, test_misclass_rate_lr, train_misclass_rate_gd,test_misclass_rate_gd, train_misclass_rate_gd_btls, test_misclass_rate_gd_btls];
 bar(rates)
 title('Misclassification rates')
-set(gca,'xticklabel',{'Train GD','Test GD','Train GD-BS', 'Test GD-BS'});
+set(gca,'xticklabel',{'Train LR', 'Test LR', 'Train GD','Test GD','Train GD-BS', 'Test GD-BS'});
+
+function [X, avg, Xstd] = normalize(X)
+    [m, ~] = size(X);
+    avg = mean(X,1);
+    X = X - ones(m,1)*avg;
+    Xstd = std(X,1);
+    X = X ./ max(ones(m,1)*Xstd,1);
+end
+
+function cost = f_func(A, b, x, act_func)
+    [m, ~] = size(A);
+    z = act_func(A*x);
+    cost = sum(-log(z(b == 1))) + sum(-log(1 - z(b == 0)))/m;
+end
+
