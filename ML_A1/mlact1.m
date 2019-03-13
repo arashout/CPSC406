@@ -28,8 +28,12 @@ btest(btest==9)=-1;
 
 % Normalization
 [Atr, Amean, Astd] = normalize(Atr);
-% TODO: Why is it important to use the pre-computed mean and standard
-% deviation
+% NOTE: It is important to not re-compute the Amean and Astd for 2 reasons:
+% 1. The training set has 10x more samples and the mean and standard
+% deviation are more representative of the population mean
+% 2. A rule of thumb when evaluating the performance of your model is to
+% avoid touching the test set to avoid overtrainning
+
 Atest = Atest - ones(mtest,1)*Amean;
 Atest = Atest ./ max(ones(mtest,1)*Astd,1);
 % Validation Functions
@@ -53,16 +57,15 @@ btr = (btr+1)/2;
 btest = (btest+1)/2;
 
 % Initialize functions
-sig = @(x) 1./(1+exp(-x));
+sig = @(x) 1.0 ./(1+exp(-x));
 f = @(x) f_func(Atr, btr, x, sig);
-g = @(x) Atr'*(sig(Atr*x) -btr)/mtr;
-l = @(x) norm(Atr*x - btr, 2);
+g = @(x) Atr'*(sig(Atr*x) -btr);
 x0 = zeros(ntr, 1);
-epsilon = 1e-1;
+epsilon = 1e-4;
 max_iter = 1e3;
 
-% Gradient Descent
-[x_gd, trace_gd, status] = gd(g, l, x0, 1/mtr ,max_iter, epsilon); 
+%% Gradient Descent
+[x_gd, trace_gd, status] = gd(f, g, x0, 1/mtr ,max_iter, epsilon); 
 if status < 0 
     disp("GD diverged")
 end
@@ -70,9 +73,9 @@ train_misclass_rate_gd = misclass_rate(Atr, btr,  x_gd)
 test_misclass_rate_gd = misclass_rate(Atest, btest, x_gd )
 figure(1)
 plot(trace_gd)
-hold on
-% Backtracking Line Search 
-[x_gd_bt, trace_bt, status] = gd_bt(f, g, l, x0, 1, 0.5, 0.5, 1000, 1e-1); 
+hold off
+%% Gradient Descent With Backtracking Line Search 
+[x_gd_bt, trace_bt, status] = gd_bt(f, g, x0, 1, 0.5, 0.5, 1000, 1e-1); 
 if status < 0 
     disp("GD diverged")
 end
@@ -81,6 +84,7 @@ test_misclass_rate_gd_btls = misclass_rate(Atest, btest, x_gd_bt)
 plot(trace_bt, 'g.')
 hold off
 
+%% Comparisons
 figure(2)
 rates = [train_misclass_rate_lr, test_misclass_rate_lr, train_misclass_rate_gd,test_misclass_rate_gd, train_misclass_rate_gd_btls, test_misclass_rate_gd_btls];
 bar(rates)
@@ -96,7 +100,7 @@ function [X, avg, Xstd] = normalize(X)
 end
 
 function cost = f_func(A, b, x, act_func)
-    [m, ~] = size(A);
+    m = length(b);
     z = act_func(A*x);
     cost = sum(-log(z(b == 1))) + sum(-log(1 - z(b == 0)))/m;
 end
