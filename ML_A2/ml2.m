@@ -36,7 +36,18 @@ emb2d = U*sqrt(S);
 % % TODO: Fix this?
 % text(emb2d(toplot,1),emb2d(toplot,2), words(toplot))
 % hold off
+
+n = m;
+k = 500;
+X = emb2d;
 figure(1)
+[C, P] = k_means(X, k, 10);
+M = repmat([1:1:k],n, 1);
+clusters = sum(M.*P, 2);
 hold on
-k_means(embeddings, 3, 100);
+scatter(X(:, 1), X(:, 2), 20, clusters);
+scatter(C(:,1), C(:,2), 'filled');
 hold off
+colormap(jet(5))
+
+
