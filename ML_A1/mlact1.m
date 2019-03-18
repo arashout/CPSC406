@@ -42,13 +42,15 @@ I = @(x,y) x ~= y;
 misclass_rate = @(A,y,x) sum(I(C(A*x), y))/length(y);
 
 %% Part 3 - Linear Regression
+btr_ls = btr;
+btest_ls = btest;
 x_lr = Atr \ btr;
 
-train_loss = norm(Atr*x_lr - btr, 2)
-test_loss = norm(Atest*x_lr - btest, 2)
+train_loss = norm(Atr*x_lr - btr_ls, 2)
+test_loss = norm(Atest*x_lr - btest_ls, 2)
 
-train_misclass_rate_lr = misclass_rate(Atr, btr, x_lr)
-test_misclass_rate_lr = misclass_rate(Atest, btest, x_lr)
+train_misclass_rate_lr = misclass_rate(Atr, btr_ls, x_lr)
+test_misclass_rate_lr = misclass_rate(Atest, btest_ls, x_lr)
 
 
 %% Part 4 - Logistic Regression
@@ -73,7 +75,7 @@ train_misclass_rate_gd = misclass_rate(Atr, btr,  x_gd)
 test_misclass_rate_gd = misclass_rate(Atest, btest, x_gd )
 figure(1)
 plot(trace_gd)
-hold off
+hold on
 %% Gradient Descent With Backtracking Line Search 
 [x_gd_bt, trace_bt, status] = gd_bt(f, g, x0, 1, 0.5, 0.5, 1000, 1e-1); 
 if status < 0 
@@ -91,6 +93,26 @@ bar(rates)
 title('Misclassification rates')
 set(gca,'xticklabel',{'Train LR', 'Test LR', 'Train GD','Test GD','Train GD-BS', 'Test GD-BS'});
 
+%% Debugging
+% Linear regression worst samples
+[M, ind] = maxk(abs(Atest*x_lr - btest_ls),3 );
+figure(3)
+imshow(reshape(Atest(ind(1),:),28,28)');
+figure(4)
+imshow(reshape(Atest(ind(2),:),28,28)');
+figure(5)
+imshow(reshape(Atest(ind(3),:),28,28)');
+% Logistic regression worst samples
+sig(Atest*x_gd);
+[M, ind] = maxk(abs(sig(Atest*x_gd) - btest),3);
+figure(6)
+imshow(reshape(Atest(ind(1),:),28,28)');
+figure(7)
+imshow(reshape(Atest(ind(2),:),28,28)');
+figure(8)
+imshow(reshape(Atest(ind(3),:),28,28)');
+
+%% Helper Functions
 function [X, avg, Xstd] = normalize(X)
     [m, ~] = size(X);
     avg = mean(X,1);

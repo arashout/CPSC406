@@ -1,18 +1,15 @@
 close all
 
-randseed(2);
-
 d = 2;
 n = 20;
 k = 3;
 X = rand(n, d)*20 - 20;
+P = randomP(n, k);
+C = rand(k, d)*mean2(X) - std2(X);
 
 figure(1);
-[C, P] = k_means(X, 3, 10);
-M = repmat([1:1:k],n, 1);
-clusters = sum(M.*P, 2);
+pf = @(h, C, P) plotFunc(h, X, C, P);
 hold on
-scatter(X(:, 1), X(:, 2), 20, clusters);
-scatter(C(:,1), C(:,2), 'filled');
+[C, P] = k_means(X, 3, 10, C, P, pf);
 hold off
-colormap(jet(5))
+

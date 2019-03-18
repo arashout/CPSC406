@@ -22,10 +22,10 @@ for k = 1:max_iters
         trace = trace(1:k);
         status = 1;
         return
-    elseif k > 2 && trace(k) > trace(k-1)
-        trace = trace(1:k);
-        status = -1;
-        return
+%     elseif k > 2 && trace(k) > trace(k-1)
+%         trace = trace(1:k);
+%         status = -1;
+%         return
     elseif isnan(norm(xk)) || ~isfinite(norm(xk))
         trace = trace(1:k);
         status = -1;

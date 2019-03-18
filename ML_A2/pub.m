@@ -1,3 +1,5 @@
-publish('ml2.m', 'pdf')
+publish('ml2.m', 'format', 'html', 'evalCode', false)
 publish('k_means.m', 'format', 'pdf', 'evalCode', false)
-publish('test.m', 'pdf')
+publish('plotFunc.m', 'format', 'pdf', 'evalCode', false)
+publish('randomP.m', 'format', 'pdf', 'evalCode', false)
+publish('test.m', 'format', 'pdf', 'evalCode', false)

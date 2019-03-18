@@ -1,6 +1,7 @@
 clear all
 close all
 
+%% Setup
 load embeddings
 
 fid = fopen('wordlist.txt');
@@ -10,8 +11,11 @@ words = data{1};
 m = length(words);
 embeddings = embeddings(1:m, :);
 
+%% Map to 2D space
 [U,S,V] = svds(embeddings,2);
 emb2d = U*sqrt(S);
+
+%% Initial Visualization
 
 % figure(1)
 % clf
@@ -33,21 +37,33 @@ emb2d = U*sqrt(S);
 % clf
 % plot(emb2d(toplot,1),emb2d(toplot,2),'linestyle','none')
 % hold on
-% % TODO: Fix this?
 % text(emb2d(toplot,1),emb2d(toplot,2), words(toplot))
 % hold off
 
+%% K-means
 n = m;
-k = 500;
-X = emb2d;
-figure(1)
-[C, P] = k_means(X, k, 10);
-M = repmat([1:1:k],n, 1);
-clusters = sum(M.*P, 2);
-hold on
-scatter(X(:, 1), X(:, 2), 20, clusters);
-scatter(C(:,1), C(:,2), 'filled');
-hold off
-colormap(jet(5))
+k = 1000;
+d = 50;
+X = embeddings;
+P = randomP(n, k);
+a = min(X(:));
+b = max(X(:));
+C = a + (b-a).*rand(k,d);
 
+% figure(1)
+pf = @(h, C, P) plotFunc(h, X, C, P, 0); % Putting a zero means do not plot
+[C, P] = k_means(X, k, 100, C, P, pf);
+
+%% 3. Analysis
+words = data{1};
+topN = 100;
+[M, ind] = maxk(sum(P), topN);
+word_clusters = {};
+for c = ind
+    word_ind = find(P(:, c));
+    word_cluster = words(word_ind);
+    word_clusters{end+1} = word_cluster;
+end
+
+close all
 
